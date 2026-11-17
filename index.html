@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1a4d3a">
+  <meta name="description" content="Al-Mudarris — Teacher's daily companion">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Al-Mudarris">
+  <title>Al-Mudarris | المدرس</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <span class="app-logo">📖</span>
+      <span class="app-title">Al-Mudarris</span>
+    </div>
+    <div class="header-right">
+      <span id="header-date" class="header-date"></span>
+    </div>
+  </header>
+
+  <!-- PAGE TITLE BAR -->
+  <div class="page-title-bar">
+    <button class="back-btn hidden" id="back-btn" onclick="App.goBack()">‹ Back</button>
+    <h2 id="page-title">Qur'an</h2>
+    <div class="page-actions" id="page-actions"></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="app-main" id="app-main">
+
+    <!-- ════════════ QURAN SECTION ════════════ -->
+    <section id="section-quran" class="section active">
+      <div class="tabs" id="quran-tabs">
+        <button class="tab-btn active" data-tab="quran-students">Students</button>
+        <button class="tab-btn" data-tab="quran-session">Session</button>
+        <button class="tab-btn" data-tab="quran-history">History</button>
+        <button class="tab-btn" data-tab="quran-monthly">Monthly</button>
+      </div>
+
+      <!-- Students -->
+      <div id="quran-students" class="tab-panel active">
+        <div class="section-header">
+          <h3>Qur'an Students</h3>
+          <button class="btn btn-primary btn-sm" onclick="Quran.openAddStudent()">+ Add Student</button>
+        </div>
+        <div id="qs-list"></div>
+      </div>
+
+      <!-- Today's Session -->
+      <div id="quran-session" class="tab-panel">
+        <div class="session-header">
+          <span id="qs-session-date" class="session-date"></span>
+          <div class="session-time-row">
+            <span>Class starts:</span>
+            <span id="qs-start-time-val" class="time-val">07:40 AM</span>
+            <button class="btn btn-outline btn-sm" onclick="Quran.editStartTime()">Edit</button>
+          </div>
+        </div>
+        <div id="qs-session-list"></div>
+      </div>
+
+      <!-- History -->
+      <div id="quran-history" class="tab-panel">
+        <div class="filter-row">
+          <label>Student:</label>
+          <select id="hist-student" onchange="Quran.loadHistory()">
+            <option value="">All Students</option>
+          </select>
+          <label>Month:</label>
+          <input type="month" id="hist-month" onchange="Quran.loadHistory()">
+        </div>
+        <div id="qs-history-list"></div>
+      </div>
+
+      <!-- Monthly Tracking -->
+      <div id="quran-monthly" class="tab-panel">
+        <div class="data-notice">📅 Set each student's start and end positions for this month. Tap a student's card to update.</div>
+        <div id="qs-monthly-list"></div>
+      </div>
+    </section>
+
+    <!-- ════════════ CLASSES SECTION ════════════ -->
+    <section id="section-classes" class="section">
+
+      <!-- Classes Grid -->
+      <div id="classes-list-view">
+        <div class="section-header">
+          <h3>Academic Classes</h3>
+        </div>
+        <div class="classes-grid" id="classes-grid"></div>
+      </div>
+
+      <!-- Class Detail -->
+      <div id="class-detail-view" class="hidden">
+        <div class="tabs" id="class-detail-tabs">
+          <button class="tab-btn active" data-tab="class-subjects">Subjects</button>
+          <button class="tab-btn" data-tab="class-students">Students</button>
+          <button class="tab-btn" data-tab="class-attendance">Attendance</button>
+        </div>
+
+        <!-- Subjects -->
+        <div id="class-subjects" class="tab-panel active">
+          <div id="class-subjects-list"></div>
+        </div>
+
+        <!-- Students -->
+        <div id="class-students" class="tab-panel">
+          <div class="section-header">
+            <h3>Class Students</h3>
+            <button class="btn btn-primary btn-sm" onclick="Classes.openAddClassStudent()">+ Add</button>
+          </div>
+          <div id="class-students-list"></div>
+        </div>
+
+        <!-- Attendance -->
+        <div id="class-attendance" class="tab-panel">
+          <div class="att-date-row">
+            <label>Date:</label>
+            <input type="date" id="att-date" onchange="Classes.onAttDateChange()">
+          </div>
+          <div id="class-att-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ DAILY SECTION ════════════ -->
+    <section id="section-daily" class="section">
+      <div class="daily-header">
+        <h3 id="daily-day-title">Today's Schedule</h3>
+        <input type="date" id="daily-date-picker" onchange="Daily.onDateChange()">
+      </div>
+
+      <div id="daily-periods-list"></div>
+
+      <div class="health-row">
+        <div class="form-group">
+          <label>Health issues observed (if any):</label>
+          <input type="text" id="daily-health" placeholder="e.g. 1 student with headache, or leave blank for none">
+        </div>
+      </div>
+
+      <div class="daily-actions">
+        <button class="btn btn-primary" onclick="Daily.generateReport()">📋 Generate Report</button>
+      </div>
+
+      <div id="daily-report-output" class="report-output hidden">
+        <div class="report-header">
+          <h4>Daily Report</h4>
+          <div class="report-actions">
+            <button class="btn btn-sm btn-outline" onclick="Daily.copyDailyReport()">📋 Copy</button>
+            <button class="btn btn-sm btn-outline" onclick="Daily.exportDailyReport('txt')">⬇ .txt</button>
+            <button class="btn btn-sm btn-outline" onclick="Daily.exportDailyReport('md')">⬇ .md</button>
+          </div>
+        </div>
+        <div id="daily-report-text" class="report-text"></div>
+      </div>
+    </section>
+
+    <!-- ════════════ REPORTS SECTION ════════════ -->
+    <section id="section-reports" class="section">
+      <div class="tabs" id="reports-tabs">
+        <button class="tab-btn active" data-tab="rpt-quran">Qur'an Report</button>
+        <button class="tab-btn" data-tab="rpt-daily">Past Daily</button>
+      </div>
+
+      <!-- Quran Report -->
+      <div id="rpt-quran" class="tab-panel active">
+        <div class="card report-form">
+          <div class="form-row">
+            <label>Student:</label>
+            <select id="rpt-student"><option value="">All Students</option></select>
+          </div>
+          <div class="form-row">
+            <label>From:</label>
+            <input type="date" id="rpt-from">
+          </div>
+          <div class="form-row">
+            <label>To:</label>
+            <input type="date" id="rpt-to">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="Reports.generateQuranReport()">📊 Generate Data Report</button>
+          <button class="btn btn-secondary btn-full" id="ai-report-btn" onclick="Reports.generateAIReport()">✨ Generate AI Narrative Report</button>
+          <p class="text-muted fs-sm">AI report requires internet and a Gemini API key (free — set in Settings).</p>
+        </div>
+
+        <div id="quran-report-output" class="report-output hidden">
+          <div class="report-header">
+            <h4>Qur'an Report</h4>
+            <div class="report-actions">
+              <button class="btn btn-sm btn-outline" onclick="Reports.copyQuranReport()">📋 Copy</button>
+              <button class="btn btn-sm btn-outline" onclick="Reports.exportQuranReport('txt')">⬇ .txt</button>
+              <button class="btn btn-sm btn-outline" onclick="Reports.exportQuranReport('md')">⬇ .md</button>
+              <button class="btn btn-sm btn-outline" onclick="Reports.exportQuranReport('csv')">⬇ .csv</button>
+            </div>
+          </div>
+          <div id="quran-report-content" class="report-text"></div>
+        </div>
+      </div>
+
+      <!-- Past Daily Reports -->
+      <div id="rpt-daily" class="tab-panel">
+        <div class="card report-form">
+          <div class="form-row">
+            <label>Date:</label>
+            <input type="date" id="past-daily-date">
+          </div>
+          <button class="btn btn-primary btn-full" onclick="Reports.loadPastDailyReport()">Load Report</button>
+        </div>
+        <div id="past-daily-output" class="report-output hidden">
+          <div class="report-header">
+            <h4>Saved Daily Report</h4>
+            <div class="report-actions">
+              <button class="btn btn-sm btn-outline" onclick="Reports.copyPastDailyReport()">📋 Copy</button>
+              <button class="btn btn-sm btn-outline" onclick="Reports.exportPastDailyReport()">⬇ .txt</button>
+            </div>
+          </div>
+          <div id="past-daily-content" class="report-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ SETTINGS SECTION ════════════ -->
+    <section id="section-settings" class="section">
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">General</h3>
+        <div class="settings-item">
+          <div class="settings-item-row">
+            <div class="settings-item-label">
+              <span class="label-title">Default Class Start Time</span>
+              <span class="settings-hint">Default arrival check time for Qur'an sessions</span>
+            </div>
+            <input type="time" id="default-start-time" value="07:40"
+              onchange="Settings.saveDefaultTime()" style="width:110px">
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">AI Reports (Gemini)</h3>
+        <div class="settings-item">
+          <span class="label-title">Gemini API Key</span>
+          <span class="settings-hint">Free — get yours at aistudio.google.com · Key is stored only on this device</span>
+          <div class="api-key-row">
+            <input type="password" id="gemini-api-key" placeholder="Paste your Gemini API key here" autocomplete="off">
+            <button class="btn btn-primary btn-sm" onclick="Settings.saveApiKey()">Save</button>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="settings-link">Get a free API key →</a>
+            <button class="btn btn-sm btn-outline" onclick="Settings.clearApiKey()" style="font-size:11px;padding:4px 8px;">Remove key</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">Data Backup</h3>
+        <div class="settings-item">
+          <span class="label-title">Export Weekly Backup</span>
+          <span class="settings-hint">Saves all data as a .json file. Do this every Saturday.</span>
+          <div class="backup-row">
+            <button class="btn btn-primary" id="export-btn" onclick="Settings.exportData()">⬇ Export All Data</button>
+          </div>
+        </div>
+        <div class="settings-item">
+          <span class="label-title">Import Backup</span>
+          <span class="settings-hint">Smart merge — each record goes to its correct date. No data gets mixed up.</span>
+          <div class="backup-row">
+            <input type="file" id="import-file-input" accept=".json" class="hidden"
+              onchange="Settings.importData(this)">
+            <button class="btn btn-outline" id="import-btn"
+              onclick="document.getElementById('import-file-input').click()">⬆ Import Backup File</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">About</h3>
+        <div class="settings-item">
+          <span class="label-title">Al-Mudarris — المدرس</span>
+          <span class="settings-hint">Version 1.0 · Teacher's Daily Companion · Works fully offline</span>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-section="quran" onclick="App.navigate('quran')">
+      <span class="nav-icon">📖</span><span class="nav-label">Qur'an</span>
+    </button>
+    <button class="nav-btn" data-section="classes" onclick="App.navigate('classes')">
+      <span class="nav-icon">🏫</span><span class="nav-label">Classes</span>
+    </button>
+    <button class="nav-btn" data-section="daily" onclick="App.navigate('daily')">
+      <span class="nav-icon">📋</span><span class="nav-label">Daily</span>
+    </button>
+    <button class="nav-btn" data-section="reports" onclick="App.navigate('reports')">
+      <span class="nav-icon">📊</span><span class="nav-label">Reports</span>
+    </button>
+    <button class="nav-btn" data-section="settings" onclick="App.navigate('settings')">
+      <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ════════════ MODALS ════════════ -->
+
+<!-- Add/Edit Quran Student -->
+<div class="modal-overlay hidden" id="modal-qs">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="qs-modal-title">Add Student</h3>
+      <button class="modal-close" onclick="closeModal('modal-qs')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="qs-name" placeholder="Student's full name">
+      </div>
+      <div class="form-group">
+        <label>Daily Portion Size</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="portion" value="½ page"> ½ Page</label>
+          <label class="radio-option"><input type="radio" name="portion" value="1 page" checked> 1 Page</label>
+          <label class="radio-option"><input type="radio" name="portion" value="2 pages"> 2 Pages</label>
+          <label class="radio-option">
+            <input type="radio" name="portion" value="custom"> Custom:
+            <input type="text" id="qs-custom" class="custom-input" placeholder="e.g. 3 lines" dir="auto">
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Monthly Start Position (optional)</label>
+        <div class="position-picker">
+          <select id="qs-surah"><option value="">Select Surah</option></select>
+          <input type="number" id="qs-verse" placeholder="Verse #" min="1" max="286">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-qs')">Cancel</button>
+      <button class="btn btn-primary" onclick="Quran.saveStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Class Start Time -->
+<div class="modal-overlay hidden" id="modal-start-time">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Edit Class Start Time</h3>
+      <button class="modal-close" onclick="closeModal('modal-start-time')">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sec" style="font-size:13px;margin-top:0">Default is 07:40 AM. An official reason is required to change this for the day.</p>
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" id="edit-start-time-input">
+      </div>
+      <div class="form-group">
+        <label>Official Reason *</label>
+        <input type="text" id="edit-start-reason" placeholder="e.g. Assembly postponed by admin">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-start-time')">Cancel</button>
+      <button class="btn btn-primary" onclick="Quran.saveStartTime()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Student Session Modal -->
+<div class="modal-overlay hidden" id="modal-session">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="sess-modal-name">Student Name</h3>
+      <button class="modal-close" onclick="closeModal('modal-session')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Status</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" id="btn-sess-present" onclick="Quran.setStatus('present')">Present</button>
+          <button class="toggle-btn" id="btn-sess-absent"  onclick="Quran.setStatus('absent')">Absent</button>
+        </div>
+      </div>
+
+      <div id="sess-present-fields" class="hidden">
+
+        <div class="form-group">
+          <label>Arrival Time</label>
+          <div style="display:flex;align-items:center;gap:0">
+            <input type="time" id="sess-arrival" style="flex:1">
+            <span id="sess-late-label" class="late-label hidden"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Delivery</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" id="btn-delivered"   onclick="Quran.setDelivery('delivered')">✓ Delivered</button>
+            <button class="toggle-btn" id="btn-undelivered" onclick="Quran.setDelivery('undelivered')">✗ Undelivered</button>
+          </div>
+        </div>
+
+        <div id="sess-undelivered-reason" class="form-group hidden">
+          <label>Reason for non-delivery</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" id="btn-no-attempt" onclick="Quran.setUndeliveredReason('did_not_attempt')">Did Not Attempt</button>
+            <button class="toggle-btn" id="btn-too-errors" onclick="Quran.setUndeliveredReason('too_many_errors')">Too Many Errors</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>New Portion Given</label>
+          <div class="toggle-group">
+            <button class="toggle-btn" id="btn-portion-yes" onclick="Quran.setPortion(true)">Yes</button>
+            <button class="toggle-btn" id="btn-portion-no"  onclick="Quran.setPortion(false)">No</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notes <span class="text-muted">(Arabic supported)</span></label>
+          <textarea id="sess-notes" rows="2" dir="auto" placeholder="Any observations…"></textarea>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-session')">Cancel</button>
+      <button class="btn btn-primary" onclick="Quran.saveSessionRecord()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Monthly Position Modal -->
+<div class="modal-overlay hidden" id="modal-position">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="pos-modal-title">Set Position</h3>
+      <button class="modal-close" onclick="closeModal('modal-position')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Surah (Chapter)</label>
+        <select id="pos-surah"><option value="">Select Surah</option></select>
+      </div>
+      <div class="form-group">
+        <label>Verse Number</label>
+        <input type="number" id="pos-verse" placeholder="Verse #" min="1" max="286">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-position')">Cancel</button>
+      <button class="btn btn-primary" onclick="Quran.savePosition()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Subject Modal -->
+<div class="modal-overlay hidden" id="modal-subject">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="subj-modal-title">Edit Subject</h3>
+      <button class="modal-close" onclick="closeModal('modal-subject')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Book Name</label>
+        <input type="text" id="subj-book" dir="auto" placeholder="Book or reference name (Arabic supported)">
+      </div>
+      <div class="form-group">
+        <label>Current Position</label>
+        <input type="text" id="subj-position" dir="auto" placeholder="e.g. Chapter 3, page 45 — or Arabic text">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="subj-notes" rows="2" dir="auto" placeholder="Any notes about this subject…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-subject')">Cancel</button>
+      <button class="btn btn-primary" onclick="Classes.saveSubject()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Class Student Modal -->
+<div class="modal-overlay hidden" id="modal-class-student">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="cs-modal-title">Add Student</h3>
+      <button class="modal-close" onclick="closeModal('modal-class-student')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="cs-name" placeholder="Student's full name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-class-student')">Cancel</button>
+      <button class="btn btn-primary" onclick="Classes.saveClassStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast hidden" id="toast"></div>
+
+<!-- Scripts (order matters) -->
+<script src="js/data.js"></script>
+<script src="js/db.js"></script>
+<script src="js/quran.js"></script>
+<script src="js/classes.js"></script>
+<script src="js/daily.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
